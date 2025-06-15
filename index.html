@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English for Nusantara - Kelas 7</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        .prose-custom p {
+            margin-bottom: 1rem;
+        }
+        .prose-custom h3 {
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .nav-item {
+            transition: all 0.3s ease;
+        }
+        .nav-item.active {
+            background-color: #1d4ed8;
+            color: white;
+            font-weight: 600;
+        }
+        .quiz-option {
+            transition: background-color 0.3s;
+        }
+        .quiz-option.correct {
+            background-color: #d1fae5 !important;
+            border-color: #10b981 !important;
+            color: #065f46;
+        }
+        .quiz-option.incorrect {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #991b1b;
+        }
+        .quiz-option:disabled {
+            cursor: not-allowed;
+        }
+        .feedback-card {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out, padding 0.5s ease-out, margin-top 0.5s ease-out;
+        }
+        .feedback-card.show {
+             max-height: 500px; /* Adjust as needed */
+             padding-top: 1rem;
+             padding-bottom: 1rem;
+             margin-top: 1rem;
+        }
+        .quiz-container {
+            min-height: 450px;
+        }
+        .animate-question-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <!-- Header and Navigation -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <h1 class="text-2xl font-bold text-blue-600">English for Nusantara</h1>
+                </div>
+                <div class="hidden md:block">
+                    <div id="desktop-nav" class="ml-10 flex items-baseline space-x-4">
+                        <!-- Desktop navigation items will be populated by JS -->
+                    </div>
+                </div>
+                 <div class="flex-grow max-w-xs ml-4 hidden md:block">
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                            <i class="fas fa-search text-gray-400"></i>
+                        </span>
+                        <input id="search-bar" type="text" class="w-full pl-10 pr-4 py-2 border rounded-full text-sm text-gray-700 bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Cari materi...">
+                    </div>
+                </div>
+                <div class="-mr-2 flex md:hidden">
+                    <button id="mobile-menu-button" type="button" class="bg-gray-100 inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-white hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white" aria-controls="mobile-menu" aria-expanded="false">
+                        <span class="sr-only">Open main menu</span>
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile menu, show/hide based on menu state. -->
+        <div class="md:hidden hidden" id="mobile-menu">
+            <div id="mobile-nav" class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <!-- Mobile navigation items will be populated by JS -->
+            </div>
+        </div>
+    </header>
+    
+    <!-- User Progress Section -->
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+        <div class="bg-white p-4 rounded-lg shadow">
+            <h2 class="text-lg font-semibold mb-2">Progres Belajar Anda</h2>
+            <div id="progress-container">
+                <!-- Progress will be populated by JS -->
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Main Content -->
+    <main id="main-content" class="container mx-auto p-4 sm:p-6 lg:p-8">
+        <!-- Content will be loaded here by JavaScript -->
+    </main>
+    
+    <!-- Search Results Modal -->
+    <div id="search-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+        <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-1/2 shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <div class="flex justify-between items-center pb-3">
+                    <p class="text-xl font-bold">Hasil Pencarian</p>
+                    <div id="close-search-modal" class="cursor-pointer z-50">
+                        <i class="fas fa-times"></i>
+                    </div>
+                </div>
+                <div id="search-results" class="mt-2 text-left">
+                    <!-- Search results will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <footer class="bg-white mt-12 py-6">
+        <div class="container mx-auto text-center text-gray-500">
+            <p>&copy; 2024 Website Pembelajaran Interaktif. Dibuat dengan <i class="fas fa-heart text-red-500"></i> untuk Pendidikan.</p>
+        </div>
+    </footer>
+
+    <script>
+        // --- DATA ---
+        // This object holds all the content for the website, extracted from the PDF.
+        const learningData = {
+            chapters: [
+                {
+                    id: "chapter1",
+                    title: "Chapter 1: About Me",
+                    icon: "fa-user-alt",
+                    summary: "Mempelajari cara memperkenalkan diri dan orang lain, berbicara tentang hobi, dan mendeskripsikan orang.",
+                    content: `
+                        <div class="prose-custom">
+                            <h2><i class="fas fa-bullhorn mr-2 text-blue-500"></i>Pengantar</h2>
+                            <p>Di bab ini, kita akan belajar dasar-dasar komunikasi dalam Bahasa Inggris. Kamu akan bisa memperkenalkan dirimu, teman-temanmu, dan juga menceritakan apa yang kamu suka lakukan di waktu luang. Ini adalah langkah pertama untuk bisa bercakap-cakap dengan percaya diri!</p>
+
+                            <h3><i class="fas fa-book-open mr-2 text-blue-500"></i>Penjelasan Materi</h3>
+                            
+                            <h4>1. Introducing Yourself (Memperkenalkan Diri)</h4>
+                            <p>Saat memperkenalkan diri, kamu bisa menyebutkan nama, umur, asal, dan hobi. Gunakan kalimat sederhana seperti:</p>
+                            <ul class="list-disc list-inside bg-blue-50 p-4 rounded-lg">
+                                <li><strong>Hi, my name is [Your Name].</strong> (Hai, nama saya [Nama Kamu])</li>
+                                <li><strong>I am [Your Age] years old.</strong> (Saya berumur [Usia Kamu] tahun)</li>
+                                <li><strong>I am from [Your City/Country].</strong> (Saya berasal dari [Kota/Negara Kamu])</li>
+                                <li><strong>My hobby is [Your Hobby].</strong> / <strong>I like [Your Hobby].</strong> (Hobi saya adalah [Hobi Kamu])</li>
+                            </ul>
+
+                            <h4>2. Greetings and Saying Goodbye (Sapaan dan Pamitan)</h4>
+                            <p>Sapaan sangat penting dalam percakapan. Beberapa sapaan umum:</p>
+                            <ul class="list-disc list-inside bg-blue-50 p-4 rounded-lg">
+                                <li><strong>Greetings:</strong> Hello, Hi, Good morning, Good afternoon, Good evening.</li>
+                                <li><strong>Asking how they are:</strong> How are you?</li>
+                                <li><strong>Responses:</strong> I'm fine, thank you. / I'm great!</li>
+                                <li><strong>Partings (Pamitan):</strong> Goodbye, See you later, Bye.</li>
+                            </ul>
+
+                            <h4>3. Describing People (Mendeskripsikan Orang)</h4>
+                            <p>Kamu bisa mendeskripsikan seseorang dari penampilan fisik (physical traits) dan sifatnya (personality traits).</p>
+                            <ul class="list-disc list-inside bg-blue-50 p-4 rounded-lg">
+                                <li><strong>Physical Traits:</strong> tall (tinggi), short (pendek), long hair (rambut panjang), short hair (rambut pendek), straight hair (rambut lurus), curly hair (rambut keriting).</li>
+                                <li><strong>Personality Traits:</strong> friendly (ramah), kind (baik hati), smart (pintar), funny (lucu).</li>
+                            </ul>
+                            
+                            <h3><i class="fas fa-comment-dots mr-2 text-blue-500"></i>Contoh Percakapan</h3>
+                            <div class="bg-gray-100 p-4 rounded-lg border-l-4 border-blue-500">
+                                <p><strong>Galang:</strong> Hi, my name is Galang. What's your name?</p>
+                                <p><strong>Andre:</strong> I'm Andre. Nice to meet you.</p>
+                                <p><strong>Galang:</strong> Nice to meet you too. I am 13 years old. How old are you?</p>
+                                <p><strong>Andre:</strong> I'm 13 too! I like playing mobile games.</p>
+                                <p><strong>Galang:</strong> Cool! My hobby is fishing.</p>
+                            </div>
+
+                            <h3><i class="fas fa-lightbulb mr-2 text-blue-500"></i>Rangkuman Bab 1</h3>
+                            <p>Kamu telah belajar cara menyapa (greetings), memperkenalkan diri (introducing yourself), mendeskripsikan orang lain (describing people), dan berpamitan (saying goodbye). Latih terus agar semakin lancar!</p>
+                        </div>
+                    `,
+                    miniQuiz: [
+                        {
+                            question: "To greet someone in the morning, you say...",
+                            options: ["Good evening", "Good morning", "Good night", "Goodbye"],
+                            answer: "Good morning",
+                            explanation: "'Good morning' adalah sapaan yang tepat untuk digunakan di pagi hari."
+                        },
+                        {
+                            question: "What is the correct response to 'How are you?'",
+                            options: ["My name is Budi", "I am 12 years old", "I'm fine, thank you", "I like swimming"],
+                            answer: "I'm fine, thank you",
+                            explanation: "'I'm fine, thank you' adalah jawaban standar untuk menanyakan kabar."
+                        }
+                    ]
+                },
+                {
+                    id: "chapter2",
+                    title: "Chapter 2: Culinary and Me",
+                    icon: "fa-utensils",
+                    summary: "Mendeskripsikan makanan favorit, bertanya dan memberi informasi tentang makanan, dan memahami resep.",
+                    content: `
+                        <div class="prose-custom">
+                            <h2><i class="fas fa-bullhorn mr-2 text-green-500"></i>Pengantar</h2>
+                            <p>Makanan adalah bagian seru dari kehidupan! Di bab ini, kita akan belajar mengungkapkan makanan dan minuman kesukaan dalam Bahasa Inggris. Kamu juga akan belajar membaca resep sederhana. Siap untuk petualangan kuliner?</p>
+                            
+                            <h3><i class="fas fa-book-open mr-2 text-green-500"></i>Penjelasan Materi</h3>
+                            
+                            <h4>1. Describing Favorite Food (Mendeskripsikan Makanan Favorit)</h4>
+                            <p>Kamu bisa mendeskripsikan makanan dari rasa (taste) dan teksturnya (texture).</p>
+                            <ul class="list-disc list-inside bg-green-50 p-4 rounded-lg">
+                                <li><strong>Taste (Rasa):</strong> sweet (manis), sour (asam), salty (asin), bitter (pahit), spicy (pedas), savory (gurih).</li>
+                                <li><strong>Texture (Tekstur):</strong> crispy (renyah), crunchy (garing), soft (lembut), sticky (lengket), greasy (berminyak).</li>
+                            </ul>
+                            
+                            <h4>2. Asking and Giving Information about Food</h4>
+                            <p>Gunakan pertanyaan ini untuk bertanya tentang makanan kesukaan:</p>
+                            <ul class="list-disc list-inside bg-green-50 p-4 rounded-lg">
+                                <li><strong>"What is your favorite food?"</strong> (Apa makanan favoritmu?) -> <strong>"My favorite food is fried rice."</strong></li>
+                                <li><strong>"Do you like [food name]?"</strong> (Apakah kamu suka [nama makanan]?) -> <strong>"Yes, I do."</strong> atau <strong>"No, I don't."</strong></li>
+                                <li><strong>"What does it taste like?"</strong> (Bagaimana rasanya?) -> <strong>"It's spicy and savory."</strong></li>
+                            </ul>
+                            
+                            <h4>3. Understanding a Recipe (Memahami Resep)</h4>
+                            <p>Resep biasanya terdiri dari tiga bagian:</p>
+                            <ul class="list-disc list-inside bg-green-50 p-4 rounded-lg">
+                                <li><strong>Goal/Title:</strong> Nama masakan (e.g., How to Make Fried Rice).</li>
+                                <li><strong>Ingredients:</strong> Bahan-bahan yang dibutuhkan (e.g., rice, egg, oil, salt).</li>
+                                <li><strong>Steps/Method:</strong> Langkah-langkah memasak (e.g., First, heat the oil. Then, add the egg.). Kata kerja yang sering dipakai adalah: <strong>cut</strong> (potong), <strong>mix</strong> (campur), <strong>heat</strong> (panaskan), <strong>pour</strong> (tuang), <strong>stir</strong> (aduk).</li>
+                            </ul>
+                            
+                            <h3><i class="fas fa-comment-dots mr-2 text-green-500"></i>Contoh Resep Sederhana: Banana Fritters</h3>
+                            <div class="bg-gray-100 p-4 rounded-lg border-l-4 border-green-500">
+                                <p><strong>Ingredients:</strong><br>- 1 banana<br>- Flour<br>- Sugar<br>- Water<br>- Oil</p>
+                                <p><strong>Steps:</strong><br>1. First, peel the banana and cut it.<br>2. Then, mix flour, sugar, and water to make a batter.<br>3. Next, put the banana into the batter.<br>4. Finally, fry the banana until golden brown.</p>
+                            </div>
+                            
+                            <h3><i class="fas fa-lightbulb mr-2 text-green-500"></i>Rangkuman Bab 2</h3>
+                            <p>Kamu sudah bisa mendeskripsikan rasa dan tekstur makanan, bertanya jawab tentang makanan favorit, dan memahami struktur dasar sebuah resep. Sekarang kamu bisa coba membaca resep berbahasa Inggris!</p>
+                        </div>
+                    `,
+                     miniQuiz: [
+                        {
+                            question: "If a food is 'spicy', it means it is...",
+                            options: ["Manis", "Asin", "Pedas", "Asam"],
+                            answer: "Pedas",
+                            explanation: "'Spicy' adalah kata dalam bahasa Inggris untuk rasa pedas."
+                        },
+                        {
+                            question: "The ingredients section in a recipe tells you...",
+                            options: ["The cooking steps", "The name of the dish", "The tools you need", "The items you need to cook"],
+                            answer: "The items you need to cook",
+                            explanation: "'Ingredients' berarti bahan-bahan, yaitu semua item yang kamu butuhkan untuk memasak hidangan tersebut."
+                        }
+                    ]
+                },
+                 {
+                    id: "chapter3",
+                    title: "Chapter 3: Home Sweet Home",
+                    icon: "fa-home",
+                    summary: "Mendeskripsikan ruangan di rumah, perabotan, pekerjaan rumah, dan memberikan instruksi.",
+                    content: `
+                        <div class="prose-custom">
+                            <h2><i class="fas fa-bullhorn mr-2 text-yellow-500"></i>Pengantar</h2>
+                            <p>Rumah adalah tempat kita tinggal. Di bab ini, kita akan menjelajahi berbagai ruangan di rumah dan benda-benda di dalamnya. Kita juga akan belajar tentang pekerjaan rumah tangga (house chores) dan cara memberikan perintah atau instruksi sederhana.</p>
+                            
+                            <h3><i class="fas fa-book-open mr-2 text-yellow-500"></i>Penjelasan Materi</h3>
+                            
+                            <h4>1. Rooms in a House (Ruangan di Rumah)</h4>
+                            <p>Beberapa ruangan umum di rumah:</p>
+                            <ul class="list-disc list-inside bg-yellow-50 p-4 rounded-lg">
+                                <li><strong>Living room:</strong> Ruang tamu</li>
+                                <li><strong>Bedroom:</strong> Kamar tidur</li>
+                                <li><strong>Kitchen:</strong> Dapur</li>
+                                <li><strong>Bathroom:</strong> Kamar mandi</li>
+                                <li><strong>Dining room:</strong> Ruang makan</li>
+                                <li><strong>Garage:</strong> Garasi</li>
+                            </ul>
+                            
+                            <h4>2. Prepositions of Place (Kata Depan untuk Tempat)</h4>
+                            <p>Untuk menjelaskan lokasi benda, kita menggunakan preposisi:</p>
+                            <ul class="list-disc list-inside bg-yellow-50 p-4 rounded-lg">
+                                <li><strong>in:</strong> di dalam (e.g., The clothes are <strong>in</strong> the cupboard.)</li>
+                                <li><strong>on:</strong> di atas (e.g., The book is <strong>on</strong> the table.)</li>
+                                <li><strong>under:</strong> di bawah (e.g., The ball is <strong>under</strong> the chair.)</li>
+                                <li><strong>next to:</strong> di sebelah (e.g., The lamp is <strong>next to</strong> the bed.)</li>
+                                <li><strong>behind:</strong> di belakang</li>
+                                <li><strong>in front of:</strong> di depan</li>
+                            </ul>
+                            
+                            <h4>3. House Chores (Pekerjaan Rumah Tangga)</h4>
+                            <p>Aktivitas membersihkan rumah:</p>
+                            <ul class="list-disc list-inside bg-yellow-50 p-4 rounded-lg">
+                                <li><strong>Sweep the floor:</strong> Menyapu lantai</li>
+                                <li><strong>Mop the floor:</strong> Mengepel lantai</li>
+                                <li><strong>Wash the dishes:</strong> Mencuci piring</li>
+                                <li><strong>Make the bed:</strong> Merapikan tempat tidur</li>
+                                <li><strong>Take out the trash:</strong> Membuang sampah</li>
+                            </ul>
+                            
+                            <h4>4. Giving Instructions (Imperatives)</h4>
+                            <p>Untuk memberi perintah, gunakan kata kerja dasar di awal kalimat.</p>
+                            <ul class="list-disc list-inside bg-yellow-50 p-4 rounded-lg">
+                                <li><strong>Positive:</strong> <strong>Clean</strong> your room! (Bersihkan kamarmu!)</li>
+                                <li><strong>Negative:</strong> <strong>Don't forget</strong> to wash your hands. (Jangan lupa cuci tanganmu.)</li>
+                            </ul>
+
+                            <h3><i class="fas fa-comment-dots mr-2 text-yellow-500"></i>Contoh Deskripsi</h3>
+                            <div class="bg-gray-100 p-4 rounded-lg border-l-4 border-yellow-500">
+                                <p>This is my bedroom. It is small but tidy. There is a bed and a desk. The desk is <strong>next to</strong> the window. I put my books <strong>on</strong> the desk. I always <strong>make the bed</strong> every morning.</p>
+                            </div>
+
+                            <h3><i class="fas fa-lightbulb mr-2 text-yellow-500"></i>Rangkuman Bab 3</h3>
+                            <p>Kamu telah mempelajari nama-nama ruangan, preposisi untuk menunjukkan lokasi benda, kosakata pekerjaan rumah, dan cara memberikan instruksi. Sekarang, coba deskripsikan kamarmu sendiri!</p>
+                        </div>
+                    `,
+                     miniQuiz: [
+                        {
+                            question: "The television is ... the table.",
+                            options: ["on", "in", "under", "next to"],
+                            answer: "on",
+                            explanation: "Kita menggunakan 'on' untuk menyatakan bahwa sesuatu berada di atas permukaan benda lain."
+                        },
+                        {
+                            question: "Which one is an instruction?",
+                            options: ["I am cleaning the room", "She cleans the room", "Clean the room!", "Do you clean the room?"],
+                            answer: "Clean the room!",
+                            explanation: "Kalimat perintah (imperative) dimulai dengan kata kerja dasar dan tidak memiliki subjek (seperti I, you, she)."
+                        }
+                    ]
+                },
+                {
+                    id: "chapter4",
+                    title: "Chapter 4: My School Activities",
+                    icon: "fa-school",
+                    summary: "Membicarakan jadwal pelajaran, mata pelajaran, dan kebiasaan belajar yang baik.",
+                    content: `
+                        <div class="prose-custom">
+                            <h2><i class="fas fa-bullhorn mr-2 text-purple-500"></i>Pengantar</h2>
+                            <p>Sekolah adalah tempat kita belajar banyak hal. Di bab ini, kita akan membahas aktivitas sehari-hari di sekolah, mulai dari jadwal pelajaran hingga tips belajar yang efektif. Mari kita lihat bagaimana cara membicarakannya dalam Bahasa Inggris!</p>
+                            
+                            <h3><i class="fas fa-book-open mr-2 text-purple-500"></i>Penjelasan Materi</h3>
+                            
+                            <h4>1. School Subjects (Mata Pelajaran)</h4>
+                            <p>Beberapa mata pelajaran di sekolah:</p>
+                            <ul class="list-disc list-inside bg-purple-50 p-4 rounded-lg">
+                                <li><strong>English:</strong> Bahasa Inggris</li>
+                                <li><strong>Math (Mathematics):</strong> Matematika</li>
+                                <li><strong>Science:</strong> Ilmu Pengetahuan Alam (IPA)</li>
+                                <li><strong>Social Studies:</strong> Ilmu Pengetahuan Sosial (IPS)</li>
+                                <li><strong>Art:</strong> Seni Budaya</li>
+                                <li><strong>PE (Physical Education):</strong> Pendidikan Jasmani (Olahraga)</li>
+                            </ul>
+                            
+                            <h4>2. Telling Time and Days (Menyebutkan Waktu dan Hari)</h4>
+                            <p>Untuk membicarakan jadwal, kamu perlu tahu nama-nama hari dan cara membaca jam.</p>
+                            <ul class="list-disc list-inside bg-purple-50 p-4 rounded-lg">
+                                <li><strong>Days:</strong> Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday.</li>
+                                <li><strong>Asking about schedule:</strong> <strong>When</strong> do you have English? (Kapan kamu ada pelajaran B. Inggris?) -> I have English <strong>on</strong> Monday.</li>
+                                <li><strong>Asking about time:</strong> <strong>What time</strong> is the Math class? (Jam berapa kelas Matematika?) -> It's <strong>at</strong> 9 o'clock.</li>
+                            </ul>
+                            
+                            <h4>3. Study Habits (Kebiasaan Belajar)</h4>
+                            <p>Kebiasaan belajar yang baik membantu kita sukses. Kita bisa menggunakan Adverbs of Frequency untuk menjelaskannya.</p>
+                            <ul class="list-disc list-inside bg-purple-50 p-4 rounded-lg">
+                                <li><strong>always</strong> (selalu), <strong>usually</strong> (biasanya), <strong>often</strong> (sering), <strong>sometimes</strong> (kadang-kadang), <strong>rarely</strong> (jarang), <strong>never</strong> (tidak pernah).</li>
+                                <li>Contoh: "I <strong>always</strong> do my homework after school." (Saya selalu mengerjakan PR setelah sekolah).</li>
+                                <li>"She <strong>sometimes</strong> studies with friends." (Dia kadang-kadang belajar bersama teman).</li>
+                            </ul>
+                            
+                            <h3><i class="fas fa-comment-dots mr-2 text-purple-500"></i>Contoh Jadwal Pelajaran</h3>
+                            <div class="bg-gray-100 p-4 rounded-lg border-l-4 border-purple-500">
+                                <p><strong>Monita's Schedule:</strong></p>
+                                <p>On Monday, I have a flag ceremony at 7 AM. After that, I have Math at 8 AM and English at 10 AM. I <strong>usually</strong> eat lunch at 12 PM. I don't have Art on Monday.</p>
+                            </div>
+                            
+                            <h3><i class="fas fa-lightbulb mr-2 text-purple-500"></i>Rangkuman Bab 4</h3>
+                            <p>Kamu sudah bisa menyebutkan mata pelajaran, hari, dan jam. Kamu juga bisa bertanya dan memberi informasi tentang jadwal serta mendeskripsikan seberapa sering kamu melakukan sesuatu menggunakan adverbs of frequency.</p>
+                        </div>
+                    `,
+                     miniQuiz: [
+                        {
+                            question: "What subject involves numbers and calculations?",
+                            options: ["Art", "PE", "Science", "Math"],
+                            answer: "Math",
+                            explanation: "Math (Mathematics) atau Matematika adalah mata pelajaran yang berhubungan dengan angka dan perhitungan."
+                        },
+                        {
+                            question: "If you do something every single day, you ... do it.",
+                            options: ["sometimes", "never", "always", "rarely"],
+                            answer: "always",
+                            explanation: "'Always' (selalu) digunakan untuk aktivitas yang dilakukan setiap saat atau 100%."
+                        }
+                    ]
+                },
+                {
+                    id: "chapter5",
+                    title: "Chapter 5: This is My School",
+                    icon: "fa-map-marked-alt",
+                    summary: "Mendeskripsikan gedung sekolah, bertanya dan memberi arah, serta membicarakan kegiatan ekstrakurikuler.",
+                    content: `
+                        <div class="prose-custom">
+                            <h2><i class="fas fa-bullhorn mr-2 text-red-500"></i>Pengantar</h2>
+                            <p>Selamat datang di bab terakhir! Di sini, kita akan menjadi pemandu wisata di sekolah kita sendiri. Kita akan belajar cara mendeskripsikan lokasi, memberi petunjuk arah, dan bercerita tentang kegiatan seru setelah jam pelajaran usai.</p>
+                            
+                            <h3><i class="fas fa-book-open mr-2 text-red-500"></i>Penjelasan Materi</h3>
+                            
+                            <h4>1. School Buildings and Facilities (Gedung dan Fasilitas Sekolah)</h4>
+                            <p>Tempat-tempat yang ada di sekolah:</p>
+                            <ul class="list-disc list-inside bg-red-50 p-4 rounded-lg">
+                                <li><strong>Classroom:</strong> Ruang kelas</li>
+                                <li><strong>Library:</strong> Perpustakaan</li>
+                                <li><strong>Canteen:</strong> Kantin</li>
+                                <li><strong>Laboratory (Lab):</strong> Laboratorium</li>
+                                <li><strong>School yard:</strong> Lapangan sekolah</li>
+                                <li><strong>Principal's office:</strong> Ruang kepala sekolah</li>
+                                <li><strong>Teachers' room:</strong> Ruang guru</li>
+                            </ul>
+                            
+                            <h4>2. Asking for and Giving Directions (Bertanya dan Memberi Arah)</h4>
+                            <p>Frasa yang berguna untuk menanyakan dan memberi arah:</p>
+                            <ul class="list-disc list-inside bg-red-50 p-4 rounded-lg">
+                                <li><strong>Asking:</strong> "Excuse me, where is the library?" (Permisi, di mana perpustakaan?)</li>
+                                <li><strong>Giving Directions:</strong>
+                                    <ul>
+                                        <li>- <strong>Go straight:</strong> Jalan lurus</li>
+                                        <li>- <strong>Turn left:</strong> Belok kiri</li>
+                                        <li>- <strong>Turn right:</strong> Belok kanan</li>
+                                        <li>- It's <strong>on the left/right</strong>: Ada di sebelah kiri/kanan</li>
+                                        <li>- It's <strong>beside</strong> the canteen: Letaknya di sebelah kantin.</li>
+                                        <li>- It's <strong>across from</strong> the lab: Letaknya di seberang lab.</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                            
+                            <h4>3. Extracurricular Activities (Kegiatan Ekstrakurikuler)</h4>
+                            <p>Kegiatan setelah jam sekolah:</p>
+                            <ul class="list-disc list-inside bg-red-50 p-4 rounded-lg">
+                                <li><strong>Scout:</strong> Pramuka</li>
+                                <li><strong>Basketball club:</strong> Klub basket</li>
+                                <li><strong>English club:</strong> Klub Bahasa Inggris</li>
+                                <li><strong>Dancing:</strong> Menari</li>
+                                <li><strong>Pencak Silat:</strong> Pencak Silat</li>
+                            </ul>
+                            
+                            <h3><i class="fas fa-comment-dots mr-2 text-red-500"></i>Contoh Memberi Arah</h3>
+                            <div class="bg-gray-100 p-4 rounded-lg border-l-4 border-red-500">
+                                <p><strong>Student A:</strong> Excuse me, can you tell me where the teachers' room is?</p>
+                                <p><strong>Student B:</strong> Sure. From here, <strong>go straight</strong> until you see the library. Then, <strong>turn right</strong>. The teachers' room is <strong>beside</strong> the canteen.</p>
+                                <p><strong>Student A:</strong> Thank you!</p>
+                            </div>
+                            
+                            <h3><i class="fas fa-lightbulb mr-2 text-red-500"></i>Rangkuman Bab 5</h3>
+                            <p>Kamu sudah bisa menyebutkan fasilitas sekolah, bertanya dan memberi petunjuk arah dengan percaya diri, serta menceritakan kegiatan ekstrakurikuler yang ada di sekolahmu. Hebat!</p>
+                        </div>
+                    `,
+                    miniQuiz: [
+                        {
+                            question: "Where do you usually borrow books at school?",
+                            options: ["Canteen", "Laboratory", "Library", "Classroom"],
+                            answer: "Library",
+                            explanation: "'Library' adalah kata dalam Bahasa Inggris untuk perpustakaan, tempat meminjam buku."
+                        },
+                        {
+                            question: "To tell someone to walk forward, you say...",
+                            options: ["Turn left", "Go straight", "Turn right", "Stop here"],
+                            answer: "Go straight",
+                            explanation: "'Go straight' adalah instruksi untuk berjalan lurus ke depan."
+                        }
+                    ]
+                }
+            ],
+            finalQuiz: {
+                title: "Kuis Akhir",
+                icon: "fa-award",
+                summary: "Uji pemahamanmu dari semua bab yang telah dipelajari. Good luck!",
+                allQuestions: [
+                    // Chapter 1
+                    { type: 'mcq', q: "You meet your teacher at 8 AM. What do you say?", o: ["Good evening", "Good afternoon", "Good night", "Good morning"], a: "Good morning", ex: "'Good morning' digunakan untuk menyapa di pagi hari (sebelum jam 12 siang)." },
+                    { type: 'mcq', q: "Andre has short, straight hair. This sentence describes his...", o: ["Personality trait", "Hobby", "Physical trait", "Age"], a: "Physical trait", ex: "Kalimat tersebut mendeskripsikan ciri-ciri fisik Andre (penampilan luar)." },
+                    { type: 'mcq', q: "My hobby is reading books. 'Hobby' means...", o: ["Pekerjaan", "Kegemaran", "Keluarga", "Sekolah"], a: "Kegemaran", ex: "'Hobby' dalam Bahasa Indonesia berarti kegemaran atau sesuatu yang suka dilakukan di waktu luang." },
+                    { type: 'mcq', q: "A person who is 'friendly' is...", o: ["Easy to make friends with", "Very smart", "Good at sports", "Always quiet"], a: "Easy to make friends with", ex: "'Friendly' (ramah) berarti seseorang yang mudah bergaul dan berteman." },
+                    { type: 'mcq', q: "To say goodbye to a friend, you can say...", o: ["How are you?", "What's your name?", "See you later", "Hello"], a: "See you later", ex: "'See you later' adalah salah satu cara untuk berpamitan atau mengucapkan selamat tinggal." },
+                    // Chapter 2
+                    { type: 'mcq', q: "This food tastes sweet. 'Sweet' means...", o: ["Asin", "Pedas", "Pahit", "Manis"], a: "Manis", ex: "'Sweet' adalah kata untuk rasa manis." },
+                    { type: 'mcq', q: "The part of a recipe that lists the things you need is called...", o: ["Steps", "Title", "Ingredients", "Goal"], a: "Ingredients", ex: "'Ingredients' adalah daftar bahan-bahan yang diperlukan untuk memasak." },
+                    { type: 'mcq', q: "Potato chips are usually...", o: ["Soft and sticky", "Crispy and salty", "Sour and sweet", "Bitter and greasy"], a: "Crispy and salty", ex: "Keripik kentang umumnya memiliki tekstur renyah ('crispy') dan rasa asin ('salty')." },
+                    { type: 'mcq', q: "'Heat the oil in a pan.' This is an example of a...", o: ["Question", "Description", "Step in a recipe", "Greeting"], a: "Step in a recipe", ex: "Kalimat ini adalah sebuah instruksi atau langkah dalam sebuah resep." },
+                    { type: 'mcq', q: "'I don't like sour food.' 'Sour' means...", o: ["Asam", "Gurih", "Pedas", "Pahit"], a: "Asam", ex: "'Sour' adalah kata dalam Bahasa Inggris untuk rasa asam." },
+                    // Chapter 3
+                    { type: 'mcq', q: "The book is ... the table.", o: ["in", "on", "under", "behind"], a: "on", ex: "Preposisi 'on' digunakan untuk benda yang berada di atas permukaan benda lain." },
+                    { type: 'mcq', q: "Where do you usually cook food?", o: ["In the bedroom", "In the bathroom", "In the garden", "In the kitchen"], a: "In the kitchen", ex: "Kegiatan memasak biasanya dilakukan di dapur ('kitchen')." },
+                    { type: 'mcq', q: "A common house chore is to 'wash the dishes'. This means...", o: ["Menyapu lantai", "Mencuci piring", "Membuang sampah", "Merapikan tempat tidur"], a: "Mencuci piring", ex: "'Wash the dishes' artinya adalah mencuci piring dan peralatan makan lainnya." },
+                    { type: 'mcq', q: "'Don't open the door!' is a...", o: ["Positive instruction", "Question", "Negative instruction", "Description"], a: "Negative instruction", ex: "Kalimat ini adalah perintah negatif karena menggunakan 'Don't' untuk melarang melakukan sesuatu." },
+                    { type: 'mcq', q: "My bed is ... the window.", o: ["on", "next to", "in", "under"], a: "next to", ex: "'Next to' berarti 'di sebelah', ini adalah preposisi yang paling logis untuk tempat tidur dan jendela." },
+                    // Chapter 4
+                    { type: 'mcq', q: "Which one is NOT a school subject?", o: ["Math", "Cooking", "Science", "PE"], a: "Cooking", ex: "'Cooking' (memasak) umumnya bukan mata pelajaran formal di SMP, tidak seperti Math, Science, dan PE." },
+                    { type: 'mcq', q: "I ... do my homework. I do it about three times a week.", o: ["always", "often", "never", "rarely"], a: "often", ex: "'Often' (sering) adalah pilihan terbaik untuk aktivitas yang dilakukan beberapa kali seminggu." },
+                    { type: 'mcq', q: "'When do you have English?' This question asks about...", o: ["Time/Day", "Reason", "Place", "Person"], a: "Time/Day", ex: "Pertanyaan dengan kata 'When' (kapan) menanyakan tentang waktu atau hari." },
+                    { type: 'mcq', q: "Physical Education is also known as...", o: ["Art", "Lab", "PE", "IPS"], a: "PE", ex: "PE adalah singkatan dari Physical Education, atau pelajaran olahraga." },
+                    { type: 'mcq', q: "To remember new words, it is a good study habit to...", o: ["Never review them", "Make flashcards", "Forget them", "Listen to music"], a: "Make flashcards", ex: "Membuat kartu kata (flashcards) adalah kebiasaan belajar yang baik untuk menghafal kosakata baru." },
+                    // Chapter 5
+                    { type: 'mcq', q: "A place at school where you can buy snacks is the...", o: ["Library", "Canteen", "Laboratory", "Office"], a: "Canteen", ex: "Kantin ('canteen') adalah tempat untuk membeli makanan dan minuman di sekolah." },
+                    { type: 'mcq', q: "To get to the library, you have to... left.", o: ["go", "turn", "straight", "on"], a: "turn", ex: "Kita menggunakan 'turn left' untuk instruksi belok ke kiri." },
+                    { type: 'mcq', q: "The teachers' room is ... the principal's office.", o: ["in", "on", "across from", "under"], a: "across from", ex: "'Across from' (di seberang) adalah preposisi yang logis untuk menggambarkan lokasi dua ruangan." },
+                    { type: 'mcq', q: "Which of these is an extracurricular activity?", o: ["Math class", "Homework", "Scout", "Exam"], a: "Scout", ex: "Pramuka ('Scout') adalah contoh kegiatan ekstrakurikuler." },
+                    { type: 'mcq', q: "'Go straight ahead.' This means...", o: ["Belok kanan", "Jalan lurus", "Berhenti", "Belok kiri"], a: "Jalan lurus", ex: "'Go straight' adalah instruksi untuk berjalan lurus ke depan." },
+                     // Essay
+                    { type: 'essay', q: "Introduce yourself in at least two sentences (name and hobby).", ex: "Jawaban yang baik akan mencakup nama dan hobi, contohnya: 'My name is [Nama]. My hobby is playing football.'" },
+                    { type: 'essay', q: "Name your favorite food and describe its taste (e.g., sweet, spicy).", ex: "Jawaban yang baik akan menyebutkan nama makanan dan setidaknya satu kata sifat untuk rasanya, contohnya: 'My favorite food is noodles. It is savory.'" },
+                    { type: 'essay', q: "Describe your bedroom using one preposition of place (in, on, under, etc.).", ex: "Jawaban yang baik akan menyebutkan satu benda dan lokasinya menggunakan preposisi, contohnya: 'My book is on the desk.'" },
+                    { type: 'essay', q: "What is your favorite school subject and why?", ex: "Jawaban yang baik akan menyebutkan mata pelajaran favorit dan alasan sederhana, contohnya: 'My favorite subject is English because I like to speak with foreigners.'" },
+                    { type: 'essay', q: "Give a simple direction from your classroom to the canteen.", ex: "Jawaban yang baik akan menggunakan setidaknya satu frasa penunjuk arah, contohnya: 'Go straight and turn right.'" }
+                ]
+            }
+        };
+
+        // --- SCRIPT LOGIC ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const mainContent = document.getElementById('main-content');
+            const desktopNav = document.getElementById('desktop-nav');
+            const mobileNav = document.getElementById('mobile-nav');
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const searchBar = document.getElementById('search-bar');
+            const searchModal = document.getElementById('search-modal');
+            const closeSearchModal = document.getElementById('close-search-modal');
+            const searchResultsContainer = document.getElementById('search-results');
+            const progressContainer = document.getElementById('progress-container');
+            
+            let completedChapters = new Set();
+            let quizState = {};
+
+            // --- Navigation and Page Rendering ---
+
+            function populateNav() {
+                const navItemsHTML = learningData.chapters.map(chapter => `
+                    <a href="#" data-id="${chapter.id}" class="nav-item text-gray-600 hover:bg-blue-500 hover:text-white px-3 py-2 rounded-md text-sm font-medium flex items-center">
+                        <i class="fas ${chapter.icon} mr-2"></i> ${chapter.title} <i data-progress-id="${chapter.id}" class="fas fa-check-circle text-green-400 ml-2 hidden"></i>
+                    </a>
+                `).join('') + `
+                    <a href="#" data-id="finalQuiz" class="nav-item text-gray-600 hover:bg-blue-500 hover:text-white px-3 py-2 rounded-md text-sm font-medium flex items-center">
+                        <i class="fas ${learningData.finalQuiz.icon} mr-2"></i> ${learningData.finalQuiz.title} <i data-progress-id="finalQuiz" class="fas fa-check-circle text-green-400 ml-2 hidden"></i>
+                    </a>`;
+                
+                desktopNav.innerHTML = navItemsHTML;
+                mobileNav.innerHTML = navItemsHTML.replace(/px-3 py-2/g, 'block px-3 py-2'); // Adjust padding for mobile
+            }
+
+            function setActiveNav(id) {
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.remove('active');
+                    if (item.dataset.id === id) {
+                        item.classList.add('active');
+                    }
+                });
+            }
+
+            function renderHomePage() {
+                mainContent.innerHTML = `
+                    <div class="bg-white p-8 rounded-lg shadow-lg text-center animate-fade-in">
+                        <img src="https://placehold.co/600x300/3b82f6/ffffff?text=Welcome!" alt="Welcome Banner" class="w-full h-auto rounded-lg mb-6">
+                        <h2 class="text-4xl font-bold text-gray-800 mb-4">Selamat Datang di Pembelajaran Interaktif</h2>
+                        <p class="text-lg text-gray-600 mb-6">Pilih bab dari navigasi di atas untuk mulai belajar Bahasa Inggris dengan cara yang menyenangkan dan mudah dipahami. Materi ini dirancang berdasarkan buku paket Kelas 7.</p>
+                        <button data-id="chapter1" class="nav-item bg-blue-600 text-white font-bold py-3 px-6 rounded-full hover:bg-blue-700 transition duration-300">
+                            Mulai Belajar dari Bab 1 <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                `;
+            }
+
+            function renderChapter(chapter) {
+                let miniQuizHTML = `
+                    <div class="mt-8 bg-gray-100 p-6 rounded-lg">
+                        <h3 class="text-2xl font-bold mb-4"><i class="fas fa-question-circle mr-2 text-blue-500"></i>Latihan Mini</h3>
+                `;
+                chapter.miniQuiz.forEach((quiz, index) => {
+                    miniQuizHTML += `
+                        <div class="mb-6" data-quiz-type="mini" data-quiz-id="${index}">
+                            <p class="font-semibold mb-2">${index + 1}. ${quiz.question}</p>
+                            <div class="space-y-2">
+                                ${quiz.options.map(option => `<button class="w-full text-left p-3 bg-white rounded-lg border-2 border-gray-200 hover:bg-blue-100 hover:border-blue-300 quiz-option">${option}</button>`).join('')}
+                            </div>
+                            <div class="p-4 rounded-lg bg-blue-100 border border-blue-200 text-blue-800 feedback-card">
+                                <p class="font-bold">Pembahasan:</p>
+                                <p>${quiz.explanation}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+                miniQuizHTML += '</div>';
+
+                mainContent.innerHTML = `
+                    <div class="bg-white p-8 rounded-lg shadow-lg animate-fade-in">
+                        <h2 class="text-3xl font-bold mb-2">${chapter.title}</h2>
+                        <p class="text-gray-500 mb-6">${chapter.summary}</p>
+                        <hr class="my-6">
+                        ${chapter.content}
+                        ${miniQuizHTML}
+                        <div class="mt-8 text-center">
+                            <button data-complete-id="${chapter.id}" class="bg-green-500 text-white font-bold py-2 px-6 rounded-full hover:bg-green-600 transition duration-300">
+                                <i class="fas fa-check mr-2"></i> Tandai Bab ini Selesai
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            function renderFinalQuiz() {
+                const quizData = learningData.finalQuiz;
+                const totalQuestions = quizData.allQuestions.length;
+                quizState = {
+                    currentIndex: 0,
+                    userAnswers: new Array(totalQuestions).fill(null),
+                    score: 0
+                };
+                
+                mainContent.innerHTML = `
+                    <div class="bg-white p-8 rounded-lg shadow-lg">
+                        <h2 class="text-3xl font-bold mb-2">${quizData.title}</h2>
+                        <p class="text-gray-500 mb-6">${quizData.summary}</p>
+                        <hr class="my-6">
+                        <div id="quiz-content-area" class="quiz-container">
+                            <!-- Quiz question will be rendered here -->
+                        </div>
+                    </div>
+                `;
+                renderCurrentQuestion();
+            }
+
+            function renderCurrentQuestion() {
+                const quizContentArea = document.getElementById('quiz-content-area');
+                if (!quizContentArea) return;
+
+                const allQuestions = learningData.finalQuiz.allQuestions;
+                const totalQuestions = allQuestions.length;
+                const currentQuestion = allQuestions[quizState.currentIndex];
+                
+                let questionHTML = '';
+
+                if (currentQuestion.type === 'mcq') {
+                    questionHTML = `
+                        <p class="font-semibold text-xl mb-4">${currentQuestion.q}</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            ${currentQuestion.o.map(option => `<button class="w-full text-left p-4 bg-gray-50 rounded-lg border-2 border-gray-200 hover:bg-blue-100 hover:border-blue-300 quiz-option">${option}</button>`).join('')}
+                        </div>
+                    `;
+                } else { // essay
+                     questionHTML = `
+                        <p class="font-semibold text-xl mb-4">${currentQuestion.q}</p>
+                        <textarea class="w-full p-3 border rounded-lg" rows="4" placeholder="Ketik jawabanmu di sini..."></textarea>
+                        <button class="mt-3 bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 essay-submit">Kirim Jawaban</button>
+                    `;
+                }
+
+                quizContentArea.innerHTML = `
+                    <div class="animate-question-in">
+                        <p class="text-sm text-gray-500 mb-2 font-semibold">Soal ${quizState.currentIndex + 1} dari ${totalQuestions}</p>
+                        <div data-quiz-type="${currentQuestion.type}" data-quiz-id="${quizState.currentIndex}">
+                            ${questionHTML}
+                            <div class="p-4 rounded-lg bg-blue-100 border border-blue-200 text-blue-800 feedback-card">
+                                <p class="font-bold">Pembahasan:</p>
+                                <p>${currentQuestion.ex}</p>
+                            </div>
+                        </div>
+                        <div id="quiz-navigation" class="text-center mt-6 hidden">
+                             <button id="next-question-btn" class="bg-green-500 text-white font-bold py-2 px-8 rounded-full hover:bg-green-600 transition duration-300">
+                                Lanjut <i class="fas fa-arrow-right ml-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            function renderQuizResults() {
+                const quizData = learningData.finalQuiz;
+                const totalQuestions = quizData.allQuestions.length;
+                const correctAnswers = quizState.score;
+
+                mainContent.innerHTML = `
+                    <div class="bg-white p-8 rounded-lg shadow-lg text-center animate-fade-in">
+                        <h2 class="text-3xl font-bold text-green-600 mb-4">Kuis Selesai!</h2>
+                        <i class="fas fa-trophy text-7xl text-yellow-400 mb-4"></i>
+                        <p class="text-xl text-gray-700 mb-2">Skor Anda:</p>
+                        <p class="text-5xl font-bold text-blue-600 mb-6">${correctAnswers} / ${totalQuestions}</p>
+                        <p class="text-lg text-gray-600 mb-8">Anda telah menjawab ${correctAnswers} soal dengan benar.</p>
+                        <div class="flex justify-center space-x-4">
+                            <button id="restart-quiz-btn" class="bg-blue-600 text-white font-bold py-3 px-6 rounded-full hover:bg-blue-700 transition duration-300">
+                                <i class="fas fa-redo mr-2"></i> Coba Lagi
+                            </button>
+                             <button data-complete-id="finalQuiz" class="bg-gray-500 text-white font-bold py-3 px-6 rounded-full hover:bg-gray-600 transition duration-300">
+                                <i class="fas fa-home mr-2"></i> Kembali ke Menu
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            function handleNavigation(e) {
+                e.preventDefault();
+                const target = e.target.closest('.nav-item');
+                if (!target) return;
+
+                const id = target.dataset.id;
+                
+                if (id.startsWith('chapter')) {
+                    const chapterData = learningData.chapters.find(c => c.id === id);
+                    renderChapter(chapterData);
+                } else if (id === 'finalQuiz') {
+                    renderFinalQuiz();
+                }
+
+                setActiveNav(id);
+                if (mobileMenu.classList.contains('hidden') === false) {
+                     mobileMenu.classList.add('hidden');
+                }
+            }
+            
+            function showNextQuestionOrResults() {
+                quizState.currentIndex++;
+                const totalQuestions = learningData.finalQuiz.allQuestions.length;
+                if (quizState.currentIndex < totalQuestions) {
+                    renderCurrentQuestion();
+                } else {
+                    renderQuizResults();
+                }
+            }
+
+
+            // --- Quiz Logic ---
+            
+            function handleMiniQuizClick(e) {
+                const button = e.target.closest('.quiz-option');
+                 if (!button) return;
+
+                const quizContainer = button.closest('[data-quiz-type="mini"]');
+                if (!quizContainer || quizContainer.dataset.answered === 'true') return;
+                
+                const quizId = parseInt(quizContainer.dataset.quizId, 10);
+                const userAnswer = button.textContent;
+                
+                const chapterId = document.querySelector('.nav-item.active').dataset.id;
+                const quizData = learningData.chapters.find(c => c.id === chapterId).miniQuiz[quizId];
+                
+                const isCorrect = userAnswer === quizData.answer;
+
+                quizContainer.querySelectorAll('.quiz-option').forEach(opt => {
+                    opt.disabled = true;
+                    if (opt.textContent === quizData.answer) {
+                        opt.classList.add('correct');
+                    }
+                });
+                
+                if (!isCorrect) {
+                    button.classList.add('incorrect');
+                }
+
+                const feedbackCard = quizContainer.querySelector('.feedback-card');
+                feedbackCard.classList.add('show');
+                quizContainer.dataset.answered = 'true';
+            }
+
+            function handleFinalQuizClick(e) {
+                const button = e.target.closest('.quiz-option');
+                if (!button) return;
+
+                const quizContainer = button.closest('[data-quiz-type="mcq"]');
+                 if (!quizContainer || quizContainer.dataset.answered === 'true') return;
+                
+                const userAnswer = button.textContent;
+                const quizData = learningData.finalQuiz.allQuestions[quizState.currentIndex];
+                const isCorrect = userAnswer === quizData.a;
+                
+                if (isCorrect) {
+                    quizState.score++;
+                }
+
+                quizContainer.querySelectorAll('.quiz-option').forEach(opt => {
+                    opt.disabled = true;
+                    if (opt.textContent === quizData.a) {
+                        opt.classList.add('correct');
+                    }
+                });
+
+                if (!isCorrect) {
+                    button.classList.add('incorrect');
+                }
+
+                quizContainer.querySelector('.feedback-card').classList.add('show');
+                quizContainer.dataset.answered = 'true';
+                document.getElementById('quiz-navigation').classList.remove('hidden');
+
+            }
+
+            function handleEssaySubmit(e) {
+                const button = e.target.closest('.essay-submit');
+                if (!button) return;
+                
+                const quizContainer = button.closest('[data-quiz-type="essay"]');
+                if (!quizContainer || quizContainer.dataset.answered === 'true') return;
+
+                button.disabled = true;
+                quizContainer.querySelector('textarea').disabled = true;
+                quizContainer.querySelector('.feedback-card').classList.add('show');
+                quizContainer.dataset.answered = 'true';
+                 document.getElementById('quiz-navigation').classList.remove('hidden');
+            }
+
+
+            // --- Progress Tracking ---
+            
+            function markChapterComplete(e) {
+                const button = e.target.closest('[data-complete-id]');
+                if (!button) return;
+
+                const id = button.dataset.completeId;
+                completedChapters.add(id);
+                updateProgressVisuals();
+                
+                if (id === 'finalQuiz') {
+                   renderHomePage();
+                   setActiveNav(null);
+                } else {
+                    alert(`Hebat! Anda telah menyelesaikan Bab ini.`);
+                }
+            }
+
+            function updateProgressVisuals() {
+                const totalModules = learningData.chapters.length + 1; // +1 for final quiz
+                progressContainer.innerHTML = ''; // Clear previous progress
+                
+                const modules = [...learningData.chapters, learningData.finalQuiz].map(m => ({id: m.id || 'finalQuiz', title: m.title}));
+
+                modules.forEach(module => {
+                     const isCompleted = completedChapters.has(module.id);
+                     document.querySelector(`[data-progress-id="${module.id}"]`)?.classList.toggle('hidden', !isCompleted);
+                     
+                     const progressItem = document.createElement('div');
+                     progressItem.className = 'flex items-center text-sm mb-1';
+                     progressItem.innerHTML = `
+                        <i class="fas ${isCompleted ? 'fa-check-circle text-green-500' : 'fa-circle text-gray-300'} mr-2"></i>
+                        <span>${module.title}</span>
+                     `;
+                     progressContainer.appendChild(progressItem);
+                });
+            }
+
+
+            // --- Search Functionality ---
+            
+            function handleSearch() {
+                const query = searchBar.value.toLowerCase().trim();
+                if (query.length < 3) {
+                    searchResultsContainer.innerHTML = '<p class="text-gray-500">Ketik minimal 3 huruf untuk mencari.</p>';
+                    return;
+                }
+
+                let results = [];
+                learningData.chapters.forEach(chapter => {
+                    if (chapter.title.toLowerCase().includes(query) || chapter.summary.toLowerCase().includes(query) || chapter.content.toLowerCase().includes(query)) {
+                        results.push({ type: 'Chapter', id: chapter.id, title: chapter.title, text: chapter.summary });
+                    }
+                });
+
+                if (learningData.finalQuiz.title.toLowerCase().includes(query)) {
+                     results.push({ type: 'Quiz', id: 'finalQuiz', title: learningData.finalQuiz.title, text: learningData.finalQuiz.summary });
+                }
+
+                if (results.length > 0) {
+                    searchResultsContainer.innerHTML = results.map(r => `
+                        <a href="#" class="block p-3 hover:bg-gray-100 rounded-lg search-result-item" data-id="${r.id}">
+                            <p class="font-semibold text-blue-600">${r.title}</p>
+                            <p class="text-sm text-gray-600">${r.text}</p>
+                        </a>
+                    `).join('');
+                } else {
+                    searchResultsContainer.innerHTML = '<p class="text-gray-500">Tidak ada hasil yang ditemukan.</p>';
+                }
+                
+                searchModal.classList.remove('hidden');
+            }
+            
+            function handleSearchResultClick(e) {
+                 e.preventDefault();
+                 const target = e.target.closest('.search-result-item');
+                 if (!target) return;
+
+                 const id = target.dataset.id;
+                 if (id.startsWith('chapter')) {
+                    const chapterData = learningData.chapters.find(c => c.id === id);
+                    renderChapter(chapterData);
+                 } else if (id === 'finalQuiz') {
+                    renderFinalQuiz();
+                 }
+                 
+                 setActiveNav(id);
+                 searchModal.classList.add('hidden');
+                 searchBar.value = '';
+            }
+
+            // --- Event Listeners ---
+            desktopNav.addEventListener('click', handleNavigation);
+            mobileNav.addEventListener('click', handleNavigation);
+            
+            mainContent.addEventListener('click', (e) => {
+                handleMiniQuizClick(e);
+                handleFinalQuizClick(e);
+                handleEssaySubmit(e);
+                markChapterComplete(e);
+                handleNavigation(e);
+                
+                if (e.target.id === 'next-question-btn') {
+                    showNextQuestionOrResults();
+                }
+                if (e.target.id === 'restart-quiz-btn') {
+                    renderFinalQuiz();
+                }
+            });
+
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+            
+            searchBar.addEventListener('keyup', (e) => {
+                if(e.key === 'Enter') {
+                    handleSearch();
+                }
+            });
+
+            closeSearchModal.addEventListener('click', () => {
+                searchModal.classList.add('hidden');
+            });
+            
+            searchResultsContainer.addEventListener('click', handleSearchResultClick);
+
+            // --- Initial Load ---
+            populateNav();
+            renderHomePage();
+            updateProgressVisuals();
+
+        });
+    </script>
+</body>
+</html>
